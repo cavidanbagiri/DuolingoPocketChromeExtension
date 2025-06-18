@@ -1,114 +1,13 @@
 
-// // import { useState, useEffect } from 'react';
-
-// // import Translate from './components/Translate.jsx';
-
-
-// // function App() {
-
-// //   const [word, setWord] = useState("");
-
-// //     useEffect(() => {
-// //         // Listen for selected word from content.js
-// //         chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-// //           console.log('message is ', message);
-// //             if (message.type === "WORD_SELECTED") {
-// //                 setWord(message.payload);
-// //             }
-// //         });
-// //         console.log('temp selected work is ', word);
-// //     }, []);
-
-// //   return <Translate selectedWord={word} />;
-// // }
-
-// // export default App;
-
-
-// import { useState, useEffect } from 'react';
-
-// import Translate from './components/Translate.jsx';
-
-
-// function App() {
-
-//   const [word, setWord] = useState("");
-
-//   useEffect(() => {
-//         console.log("Setting up message listener...");
-
-//         // Only add listener if in extension context
-//         if (chrome?.runtime) {
-//             const messageListener = (message, sender, sendResponse) => {
-//                 console.log('Received message:', message); // 🔥 We'll see this now
-//                 if (message.type === "WORD_SELECTED") {
-//                     setWord(message.payload);
-//                 }
-//             };
-
-//             chrome.runtime.onMessage.addListener(messageListener);
-
-//             // Cleanup on unmount (optional)
-//             return () => {
-//                 chrome.runtime.onMessage.removeListener(messageListener);
-//             };
-//         } else {
-//             console.warn("Not running in Chrome extension context");
-//         }
-//     }, []); // ← Runs once on mount
-
-//   return <Translate selectedWord={word} />;
-// }
-
-// export default App;
-
-
-// import React, { useState, useEffect } from 'react';
-// import Translate from './components/Translate';
-
-// function App() {
-//     const [word, setWord] = useState("");
-
-//     useEffect(() => {
-//         console.log("Setting up listener...");
-
-//         if (chrome?.runtime) {
-//             const messageListener = (message, sender, sendResponse) => {
-//                 console.log('📥 Received message:', message);
-//                 if (message.type === "WORD_SELECTED") {
-//                     setWord(message.payload);
-//                 }
-//             };
-
-//             chrome.runtime.onMessage.addListener(messageListener);
-
-//             return () => {
-//                 if (chrome?.runtime) {
-//                     chrome.runtime.onMessage.removeListener(messageListener);
-//                 }
-//             };
-//         } else {
-//             console.warn("❌ Not in Chrome extension context");
-//         }
-//     }, []);
-
-//     console.log("Current word:", word);
-
-//     return (
-//         <div>
-//             <Translate selectedWord={word} />
-//         </div>
-//     );
-// }
-
-// export default App;
-
 
 import { useState, useEffect } from 'react';
 import Translate from './components/Translate';
+import Auth from './components/Auth';
 
 function App() {
     const [word, setWord] = useState("");
+
+    const [show_auth, setShowAuth] = useState(false);
 
     useEffect(() => {
         console.log("Popup loaded");
@@ -120,7 +19,6 @@ function App() {
 
         port.onMessage.addListener((response) => {
             if (response.type === "CURRENT_WORD") {
-                console.log("📬 Got word from background:", response.payload);
                 setWord(response.payload);
             }
         });
@@ -134,13 +32,21 @@ function App() {
 
         chrome.runtime.onMessage.addListener(messageListener);
 
-        console.log('the selecting word is aaaaaaaa ', word);
         return () => {
             chrome.runtime.onMessage.removeListener(messageListener);
         };
     }, []);
 
-    return <Translate selectedWord={word} />
+    return (
+        <div className='flex flex-col items-center p-2 w-96 border'>
+            {
+                show_auth ?
+                <Auth show_auth={show_auth} setShowAuth={setShowAuth} />
+                :
+                <Translate show_auth={show_auth} setShowAuth={setShowAuth} selectedWord={word} />
+            }
+        </div>
+    )
 }
 
 export default App;
