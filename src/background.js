@@ -23,3 +23,28 @@ chrome.runtime.onConnect.addListener((port) => {
     });
 });
 
+
+
+// let lastSelectedWord = "";
+
+// // Listen for messages from content script
+// chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+//     if (message.type === "WORD_SELECTED") {
+//         console.log("🦜 Word received in background:", message.payload);
+//         lastSelectedWord = message.payload;
+//         sendResponse({ status: "received" });
+
+//         // Optional: Broadcast to all connected popups or pages
+//         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+//             chrome.scripting.executeScript({
+//                 target: { tabId: tabs[0].id },
+//                 func: forwardToPopup
+//             });
+//         });
+//     }
+// });
+
+// function forwardToPopup() {
+//     // This function runs in the context of the current tab
+//     chrome.runtime.connect().postMessage({ type: "CURRENT_WORD", payload: lastSelectedWord });
+// }
