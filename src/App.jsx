@@ -9,33 +9,33 @@ function App() {
 
     const [show_auth, setShowAuth] = useState(false);
 
-    useEffect(() => {
-        console.log("Popup loaded");
+    // useEffect(() => {
+    //     console.log("Popup loaded");
 
-        // Ask background for last selected word
-        const port = chrome.runtime.connect();
+    //     // Ask background for last selected word
+    //     const port = chrome.runtime.connect();
 
-        port.postMessage({ type: "REQUEST_WORD" });
+    //     port.postMessage({ type: "REQUEST_WORD" });
 
-        port.onMessage.addListener((response) => {
-            if (response.type === "CURRENT_WORD") {
-                setWord(response.payload);
-            }
-        });
+    //     port.onMessage.addListener((response) => {
+    //         if (response.type === "CURRENT_WORD") {
+    //             setWord(response.payload);
+    //         }
+    //     });
 
-        // Also listen for direct messages (optional)
-        const messageListener = (message) => {
-            if (message.type === "WORD_SELECTED") {
-                setWord(message.payload);
-            }
-        };
+    //     // Also listen for direct messages (optional)
+    //     const messageListener = (message) => {
+    //         if (message.type === "WORD_SELECTED") {
+    //             setWord(message.payload);
+    //         }
+    //     };
 
-        chrome.runtime.onMessage.addListener(messageListener);
+    //     chrome.runtime.onMessage.addListener(messageListener);
 
-        return () => {
-            chrome.runtime.onMessage.removeListener(messageListener);
-        };
-    }, []);
+    //     return () => {
+    //         chrome.runtime.onMessage.removeListener(messageListener);
+    //     };
+    // }, []);
 
     return (
         <div className='flex flex-col items-center p-2 w-96 border'>
