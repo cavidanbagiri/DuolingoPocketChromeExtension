@@ -80,7 +80,7 @@ function Login(props) {
 
 
     return (
-        <form onSubmit={handleSubmit} className="flex flex-col items-center p-2 w-84 justify-center">
+        <form onSubmit={handleSubmit} className="flex flex-col items-center p-2 w-[29rem] justify-center">
 
             {
         is_login_error && <MessageBox message={login_message} color={'bg-red-500'} />

@@ -1,10 +1,18 @@
 
-
+import { useSelector, useDispatch } from 'react-redux';
 import { useState, useEffect } from 'react';
+
 import Translate from './components/Translate';
 import Auth from './components/Auth';
 
+import AuthService from './service/auth-service';
+
 function App() {
+
+    const dispatch = useDispatch();
+
+    const is_auth = useSelector((state) => state.authSlice.is_auth);
+
     const [word, setWord] = useState("");
 
     const [show_auth, setShowAuth] = useState(false);
@@ -37,16 +45,25 @@ function App() {
         };
     }, []);
 
+
+    useEffect(() => {
+        if (!is_auth) {
+            dispatch(AuthService.refresh());
+        }
+    }, [is_auth]);
+
+
     return (
-        <div className='flex flex-col items-center p-2 w-96 border'>
+        <div className='flex flex-col items-center p-2 w-[30rem] '>
             {
-                show_auth ?
-                <Auth show_auth={show_auth} setShowAuth={setShowAuth} />
-                :
-                <Translate show_auth={show_auth} setShowAuth={setShowAuth} selectedWord={word} />
+                show_auth && !is_auth ?
+                    <Auth show_auth={show_auth} setShowAuth={setShowAuth} />
+                    :
+                    <Translate show_auth={show_auth} setShowAuth={setShowAuth} selectedWord={word} />
             }
         </div>
     )
+
 }
 
 export default App;

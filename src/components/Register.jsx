@@ -68,6 +68,7 @@ function Register(props) {
 
             if (password === confirm_password && password.length >= 8) {
                 const register_data = {
+                    username: null,
                     email: email,
                     password: password,
                 };
@@ -85,7 +86,7 @@ function Register(props) {
     }, [is_login_error]);
 
     return (
-        <form onSubmit={handleSubmit} className="flex flex-col items-center p-2 w-84 justify-center">
+        <form onSubmit={handleSubmit} className="flex flex-col items-center p-2 w-[29rem] justify-center">
             {is_login_error && (
                 <MessageBox message={login_message} color={"bg-red-500"} />
             )}
