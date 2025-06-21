@@ -8,6 +8,11 @@ import AuthService from "../service/auth-service";
 import logo from "../assets/logo.svg";
 import { FaArrowRight } from "react-icons/fa";
 
+
+
+import $api from "../http";
+
+
 const languages = [
   { code: "en", name: "English" },
   { code: "ru", name: "Russian" },
@@ -22,45 +27,32 @@ function Translate({ selectedWord = "", setShowAuth, show_auth }) {
 
 
 
-  const [fromLang, setFromLang] = useState("auto");
-  const [toLang, setToLang] = useState("en");
+  // const [fromLang, setFromLang] = useState("auto");
+  // const [toLang, setToLang] = useState("en");
+  const [fromLang, setFromLang] = useState("en");
+  const [toLang, setToLang] = useState("ru");
   const [translation, setTranslation] = useState("");
 
   const translate = async () => {
-    if (!selectedWord) return;
+  if (!selectedWord) return;
 
-    try {
-      // const response = await fetch(`https://api.libretranslate.com/translate`,  {
-      //   method: "POST",
-      //   body: JSON.stringify({
-      //     q: selectedWord,
-      //     source: fromLang === "auto" ? "auto" : "en",
-      //     target: toLang,
-      //   }),
-      //   headers: { "Content-Type": "application/json" }
-      // });
+  try {
+    const response = await $api.post("/translate", {
+      q: selectedWord,
+      source: 'en',
+      target: 'ru',  // Let user choose
+      format: "text",
+      alternatives: 3
+    });
 
-      const res = await fetch("https://libretranslate.com/translate", {
-        method: "POST",
-        body: JSON.stringify({
-          q: "hello",
-          source: "auto",
-          target: "ru",
-          format: "text",
-          alternatives: 3,
-          api_key: ""
-        }),
-        headers: { "Content-Type": "application/json" }
-      });
+    console.log("Server response:", response);
+    setTranslation(response.data.translation);  // Adjust based on what your backend returns
+  } catch (err) {
+    console.error("Translation failed:", err);
+    setTranslation("❌ Translation failed.");
+  }
+};
 
-      const data = await res.json();
-      console.log('coming data is {}', data);
-      setTranslation(data.translations[0].text);
-    } catch (err) {
-      console.error("Translation failed:", err);
-      setTranslation("❌ Translation failed.");
-    }
-  };
 
   useEffect(() => {
     if (selectedWord) {
@@ -152,3 +144,4 @@ function Translate({ selectedWord = "", setShowAuth, show_auth }) {
 }
 
 export default Translate;
+
