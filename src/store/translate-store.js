@@ -7,11 +7,15 @@ import TranslateService from '../service/translate-service';
 import YANDEX_LANGUAGES from '../constants/languages';
 
 const initialState = {
+
+    supported_languages: [],
+
     translate_message: '',
     translate_pending: false,
     is_translate_error: false,
     translate_success: false,
     translate_result: {},
+
 }
 
 export const translateSlice = createSlice({
@@ -56,6 +60,14 @@ export const translateSlice = createSlice({
             state.translate_pending = false;
             state.is_translate_error = true;
             state.translate_message = action.payload?.payload?.detail;
+        });
+
+        // languageService getLanguages
+        builder.addCase(TranslateService.getLanguages.fulfilled, (state, action) => {
+            // console.log('getLanguages is work')
+            // console.log('getLanguages is work', action.payload.payload)
+            state.supported_languages = action.payload.payload;
+            console.log(state.supported_languages);
         });
 
     },

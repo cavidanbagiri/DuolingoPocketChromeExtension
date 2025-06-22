@@ -1,2 +1,6 @@
 1 - Check Refresh token, each time you refresh the token, it will be invalid - Stopped
-2 - Show all possible languages in the front end
+
+
+2 - Need to create nin this form:
+    2.1 - If user not logged in, save the last target language int local storage
+    2.2 - if user logged in, the last target language should be saved in user table

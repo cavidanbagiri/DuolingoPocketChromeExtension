@@ -6,6 +6,7 @@ import Translate from './components/Translate';
 import Auth from './components/Auth';
 
 import AuthService from './service/auth-service';
+import TranslateService from './service/translate-service';
 
 function App() {
 
@@ -44,6 +45,12 @@ function App() {
             chrome.runtime.onMessage.removeListener(messageListener);
         };
     }, []);
+
+    useEffect(() => {
+    
+        dispatch(TranslateService.getLanguages());
+
+    },[]),
 
 
     useEffect(() => {

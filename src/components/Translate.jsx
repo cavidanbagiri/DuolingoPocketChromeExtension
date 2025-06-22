@@ -11,7 +11,7 @@ import TranslateService from "../service/translate-service";
 
 import logo from "../assets/logo.svg";
 
-import YANDEX_LANGUAGES from "../constants/languages";
+// import YANDEX_LANGUAGES from "../constants/languages";
 
 function Translate({ selectedWord = "", setShowAuth, show_auth }) {
 
@@ -20,6 +20,7 @@ function Translate({ selectedWord = "", setShowAuth, show_auth }) {
   const is_auth = useSelector((state) => state.authSlice.is_auth);
   const translate_pending = useSelector((state) => state.translateSlice.translate_pending);
   const translate_result = useSelector((state) => state.translateSlice.translate_result);
+  const supported_languages = useSelector((state) => state.translateSlice.supported_languages);
 
   const [fromLang, setFromLang] = useState("auto");
   const [toLang, setToLang] = useState("en");
@@ -73,32 +74,20 @@ function Translate({ selectedWord = "", setShowAuth, show_auth }) {
               :
               <option value="auto">Auto-Detect</option>
           }
-          {YANDEX_LANGUAGES.map((lang) => (
+          {/* {YANDEX_LANGUAGES.map((lang) => (
             <option key={lang.code} value={lang.code}>
               {lang.name}
             </option>
-          ))}
+          ))} */}
+          {
+            supported_languages.length > 0 &&
+            supported_languages.map((lang) => (
+              <option key={lang.code} value={lang.code}>
+                {lang.name}
+              </option>
+            ))
+          }
         </select>
-
-        {/* <select
-  value={fromLang}
-  onChange={(e) => setFromLang(e.target.value)}
-  className="p-4 w-84 rounded-lg border border-gray-200 outline-none"
->
-  <option value="auto">Auto-Detect</option>
-  {YANDEX_LANGUAGES.map((lang) => (
-    <option key={lang.code} value={lang.code}>
-      {lang.name}
-    </option>
-  ))}
-</select>
-
-{/* Show detected language only if needed */}
-{/* {translate_result.detected_lang_name && fromLang === 'auto' && (
-  <div className="text-xs text-gray-500 ml-4 mt-1">
-    Detected: {translate_result.detected_lang_name}
-  </div>
-)} */} 
 
         <FaArrowRight className="mx-5 text-2xl text-blue-500" />
         <select
@@ -107,11 +96,19 @@ function Translate({ selectedWord = "", setShowAuth, show_auth }) {
           className="p-4 w-84 rounded-lg border border-gray-200 outline-none"
         >
           <option value="en">English</option>
-          {YANDEX_LANGUAGES.map((lang) => (
+          {/* {YANDEX_LANGUAGES.map((lang) => (
             <option key={lang.code} value={lang.code}>
               {lang.name}
             </option>
-          ))}
+          ))} */}
+          {
+            supported_languages.length > 0 &&
+            supported_languages.map((lang) => (
+              <option key={lang.code} value={lang.code}>
+                {lang.name}
+              </option>
+            ))
+          }
         </select>
 
       </div>
