@@ -39,9 +39,8 @@ function Translate({ selectedWord = "", setShowAuth, show_auth }) {
   try {
     const response = await $api.post("/translate", {
       q: selectedWord,
-      source: 'en',
-      target: 'ru',  // Let user choose
-      format: "text",
+      source: 'auto',
+      target: 'ru',
       alternatives: 3
     });
 
@@ -63,7 +62,8 @@ function Translate({ selectedWord = "", setShowAuth, show_auth }) {
 
 
   return (
-    <div className="flex flex-col p-2 w-[30rem]">
+    <div style={{fontFamily: 'IBM Plex Sans'}}
+    className="flex flex-col p-2 w-[30rem]">
       {/* Header */}
       <div className="flex flex-row items-center justify-between px-2 rounded-t-lg bg-gray-100">
 
@@ -108,7 +108,7 @@ function Translate({ selectedWord = "", setShowAuth, show_auth }) {
       {/* Selected word */}
       <div className="flex flex-row items-center justify-start mt-4">
         <textarea
-          className="p-4 w-full rounded-lg border border-gray-200 outline-none"
+          className="p-4 w-full rounded-lg border border-gray-200 outline-none text-[16px]"
           name=""
           id=""
           rows="8"
@@ -120,7 +120,7 @@ function Translate({ selectedWord = "", setShowAuth, show_auth }) {
       {/* Translation */}
       <div className="flex flex-row items-center justify-start mt-1">
         <textarea
-          className="p-4 w-full rounded-lg border border-gray-200 outline-none bg-gray-50"
+          className="p-4 w-full rounded-lg border border-gray-200 outline-none bg-gray-50 text-[16px]"
           name=""
           id=""
           rows="8"
