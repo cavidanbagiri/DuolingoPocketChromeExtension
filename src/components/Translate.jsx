@@ -3,73 +3,44 @@ import { useSelector, useDispatch } from "react-redux";
 
 import { useState, useEffect } from "react";
 
-import AuthService from "../service/auth-service";
-
-import logo from "../assets/logo.svg";
 import { FaArrowRight } from "react-icons/fa";
 
+import AuthService from "../service/auth-service";
+import TranslateService from "../service/translate-service";
 
 
-import $api from "../http";
+import logo from "../assets/logo.svg";
 
-
-const languages = [
-  { code: "en", name: "English" },
-  { code: "ru", name: "Russian" },
-  { code: "fr", name: "French" },
-];
+import YANDEX_LANGUAGES from "../constants/languages";
 
 function Translate({ selectedWord = "", setShowAuth, show_auth }) {
 
   const dispatch = useDispatch();
 
   const is_auth = useSelector((state) => state.authSlice.is_auth);
+  const translate_pending = useSelector((state) => state.translateSlice.translate_pending);
+  const translate_result = useSelector((state) => state.translateSlice.translate_result);
 
-
-
-  // const [fromLang, setFromLang] = useState("auto");
-  // const [toLang, setToLang] = useState("en");
-  const [fromLang, setFromLang] = useState("en");
-  const [toLang, setToLang] = useState("ru");
-  const [translation, setTranslation] = useState("");
-
-  const translate = async () => {
-  if (!selectedWord) return;
-
-  try {
-    const response = await $api.post("/translate", {
-      q: selectedWord,
-      source: 'auto',
-      target: 'ru',
-      alternatives: 3
-    });
-
-    console.log("Server response:", response);
-    setTranslation(response.data.translation);  // Adjust based on what your backend returns
-  } catch (err) {
-    console.error("Translation failed:", err);
-    setTranslation("❌ Translation failed.");
-  }
-};
-
+  const [fromLang, setFromLang] = useState("auto");
+  const [toLang, setToLang] = useState("en");
 
   useEffect(() => {
     if (selectedWord) {
-      translate();
+      dispatch(TranslateService.translate({ q: selectedWord, source: fromLang, target: toLang, alternatives: 3 }));
     }
-  }, [selectedWord]);
+  }, [selectedWord, fromLang, toLang]);
 
 
 
   return (
-    <div style={{fontFamily: 'IBM Plex Sans'}}
-    className="flex flex-col p-2 w-[30rem]">
+    <div style={{ fontFamily: 'IBM Plex Sans' }}
+      className="flex flex-col p-2 w-[30rem]">
+
       {/* Header */}
       <div className="flex flex-row items-center justify-between px-2 rounded-t-lg bg-gray-100">
 
         <div className="flex flex-row items-center">
           <img src={logo} alt="" className="w-12 h-12" />
-          {/* <span className="ml-4 font-medium text-blue-500 text-xl">Duolingo Pocket</span> */}
         </div>
 
         {
@@ -90,19 +61,59 @@ function Translate({ selectedWord = "", setShowAuth, show_auth }) {
 
       {/* Language selection */}
       <div className="flex flex-row items-center justify-start my-1">
-        <select className="p-4 w-84 rounded-lg border border-gray-200 outline-none">
-          {languages.map((lang) => (
+
+        <select
+          value={fromLang} 
+          onChange={(e) => {setFromLang(e.target.value)}}
+          className="p-4 w-84 rounded-lg border border-gray-200 outline-none"
+        >
+          {
+            translate_result.detected_lang_name ?
+              <option value={translate_result.detected_lang}>Auto-Detect ({translate_result.detected_lang_name})</option>
+              :
+              <option value="auto">Auto-Detect</option>
+          }
+          {YANDEX_LANGUAGES.map((lang) => (
             <option key={lang.code} value={lang.code}>
               {lang.name}
             </option>
           ))}
         </select>
 
-        <FaArrowRight className="mx-5 text-2xl text-blue-500" />
+        {/* <select
+  value={fromLang}
+  onChange={(e) => setFromLang(e.target.value)}
+  className="p-4 w-84 rounded-lg border border-gray-200 outline-none"
+>
+  <option value="auto">Auto-Detect</option>
+  {YANDEX_LANGUAGES.map((lang) => (
+    <option key={lang.code} value={lang.code}>
+      {lang.name}
+    </option>
+  ))}
+</select>
 
-        <select className="p-4 w-84 rounded-lg border border-gray-200 outline-none">
-          <option value="">English</option>
+{/* Show detected language only if needed */}
+{/* {translate_result.detected_lang_name && fromLang === 'auto' && (
+  <div className="text-xs text-gray-500 ml-4 mt-1">
+    Detected: {translate_result.detected_lang_name}
+  </div>
+)} */} 
+
+        <FaArrowRight className="mx-5 text-2xl text-blue-500" />
+        <select
+          value={toLang} 
+          onChange={(e) => setToLang(e.target.value)}
+          className="p-4 w-84 rounded-lg border border-gray-200 outline-none"
+        >
+          <option value="en">English</option>
+          {YANDEX_LANGUAGES.map((lang) => (
+            <option key={lang.code} value={lang.code}>
+              {lang.name}
+            </option>
+          ))}
         </select>
+
       </div>
 
       {/* Selected word */}
@@ -125,7 +136,13 @@ function Translate({ selectedWord = "", setShowAuth, show_auth }) {
           id=""
           rows="8"
           placeholder="Translation will appear here..."
-          value={translation || "Translating..."}
+          // value={translate_result.translation || "Translating..."}
+          value={
+            translate_pending ?
+              "Translating..."
+              :
+              translate_result.translation
+          }
           readOnly
         ></textarea>
       </div>
