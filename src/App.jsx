@@ -47,9 +47,9 @@ function App() {
     }, []);
 
     useEffect(() => {
-    
+        // Get supported languages
+        console.log('fetching languages');
         dispatch(TranslateService.getLanguages());
-
     },[]),
 
 

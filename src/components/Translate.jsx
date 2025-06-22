@@ -23,7 +23,10 @@ function Translate({ selectedWord = "", setShowAuth, show_auth }) {
   const supported_languages = useSelector((state) => state.translateSlice.supported_languages);
 
   const [fromLang, setFromLang] = useState("auto");
-  const [toLang, setToLang] = useState("en");
+  const [toLang, setToLang] = useState(() => {
+    return localStorage.getItem("toLang") || "en";
+  });
+  // const [toLang, setToLang] = useState("en");
 
   useEffect(() => {
     if (selectedWord) {
@@ -64,8 +67,8 @@ function Translate({ selectedWord = "", setShowAuth, show_auth }) {
       <div className="flex flex-row items-center justify-start my-1">
 
         <select
-          value={fromLang} 
-          onChange={(e) => {setFromLang(e.target.value)}}
+          value={fromLang}
+          onChange={(e) => { setFromLang(e.target.value) }}
           className="p-4 w-84 rounded-lg border border-gray-200 outline-none"
         >
           {
@@ -74,11 +77,6 @@ function Translate({ selectedWord = "", setShowAuth, show_auth }) {
               :
               <option value="auto">Auto-Detect</option>
           }
-          {/* {YANDEX_LANGUAGES.map((lang) => (
-            <option key={lang.code} value={lang.code}>
-              {lang.name}
-            </option>
-          ))} */}
           {
             supported_languages.length > 0 &&
             supported_languages.map((lang) => (
@@ -90,17 +88,17 @@ function Translate({ selectedWord = "", setShowAuth, show_auth }) {
         </select>
 
         <FaArrowRight className="mx-5 text-2xl text-blue-500" />
+
         <select
-          value={toLang} 
-          onChange={(e) => setToLang(e.target.value)}
+          value={toLang}
+          onChange={(e) => {
+            const newLang = e.target.value;
+            localStorage.setItem("toLang", newLang);
+            setToLang(newLang);
+          }}
           className="p-4 w-84 rounded-lg border border-gray-200 outline-none"
         >
           <option value="en">English</option>
-          {/* {YANDEX_LANGUAGES.map((lang) => (
-            <option key={lang.code} value={lang.code}>
-              {lang.name}
-            </option>
-          ))} */}
           {
             supported_languages.length > 0 &&
             supported_languages.map((lang) => (
