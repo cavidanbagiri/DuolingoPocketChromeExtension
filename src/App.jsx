@@ -48,7 +48,6 @@ function App() {
 
     useEffect(() => {
         // Get supported languages
-        console.log('fetching languages');
         dispatch(TranslateService.getLanguages());
     },[]),
 
@@ -66,7 +65,7 @@ function App() {
                 show_auth && !is_auth ?
                     <Auth show_auth={show_auth} setShowAuth={setShowAuth} />
                     :
-                    <Translate show_auth={show_auth} setShowAuth={setShowAuth} selectedWord={word} />
+                    <Translate show_auth={show_auth} setShowAuth={setShowAuth} selectedWord={word} setSelectedWord={setWord} />
             }
         </div>
     )

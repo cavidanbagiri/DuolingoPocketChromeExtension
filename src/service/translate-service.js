@@ -28,8 +28,8 @@ class TranslateService {
                 });
             }
         });
-    
-   
+
+
     static getLanguages = createAsyncThunk(
         '/languages',
         async () => {
@@ -42,13 +42,13 @@ class TranslateService {
             } catch (error) {
                 // Extract error details
                 const errorData = error.response?.data || { message: error.message };
-                const statusCode = error.response?.status || 500;                
+                const statusCode = error.response?.status || 500;
                 // Pass custom error payload
                 return thunkAPI.rejectWithValue({
                     payload: errorData,
                     status: statusCode,
                 });
-                
+
             }
         });
 

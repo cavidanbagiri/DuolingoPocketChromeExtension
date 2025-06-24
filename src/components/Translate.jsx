@@ -1,9 +1,11 @@
 
 import { useSelector, useDispatch } from "react-redux";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 import { FaArrowRight } from "react-icons/fa";
+
+import { clearTranslation } from "../store/translate-store";
 
 import AuthService from "../service/auth-service";
 import TranslateService from "../service/translate-service";
@@ -11,9 +13,25 @@ import TranslateService from "../service/translate-service";
 
 import logo from "../assets/logo.svg";
 
-// import YANDEX_LANGUAGES from "../constants/languages";
+// function useDebounce(callback, delay, dependencies) {
+//   const ref = useRef(null);
 
-function Translate({ selectedWord = "", setShowAuth, show_auth }) {
+//   useEffect(() => {
+//     ref.current = callback;
+//   }, [callback, ...dependencies]);
+
+//   useEffect(() => {
+//     const handler = () => {
+//       ref.current?.();
+//     };
+
+//     const timer = setTimeout(handler, delay);
+//     return () => clearTimeout(timer);
+//   }, dependencies);
+// }
+
+
+function Translate({ selectedWord = "", setShowAuth, show_auth, setSelectedWord }) {
 
   const dispatch = useDispatch();
 
@@ -26,14 +44,17 @@ function Translate({ selectedWord = "", setShowAuth, show_auth }) {
   const [toLang, setToLang] = useState(() => {
     return localStorage.getItem("toLang") || "en";
   });
-  // const [toLang, setToLang] = useState("en");
+
 
   useEffect(() => {
-    if (selectedWord) {
-      dispatch(TranslateService.translate({ q: selectedWord, source: fromLang, target: toLang, alternatives: 3 }));
-    }
-  }, [selectedWord, fromLang, toLang]);
+    if (!selectedWord.trim()) return;
 
+    const timer = setTimeout(() => {
+      dispatch(TranslateService.translate({ q: selectedWord, source: fromLang, target: toLang }));
+    }, 300); // Wait for 300ms before sending the request
+
+    return () => clearTimeout(timer);
+  }, [selectedWord, fromLang, toLang]);
 
 
   return (
@@ -64,7 +85,7 @@ function Translate({ selectedWord = "", setShowAuth, show_auth }) {
       </div>
 
       {/* Language selection */}
-      <div className="flex flex-row items-center justify-start my-1">
+      <div className="flex flex-row items-center justify-start mt-2">
 
         <select
           value={fromLang}
@@ -112,24 +133,36 @@ function Translate({ selectedWord = "", setShowAuth, show_auth }) {
       </div>
 
       {/* Selected word */}
-      <div className="flex flex-row items-center justify-start mt-4">
+      <div className="flex flex-row items-center justify-start mt-2">
+       
         <textarea
-          className="p-4 w-full rounded-lg border border-gray-200 outline-none text-[16px]"
+          className="p-4 w-full rounded-lg border border-gray-200 outline-none text-[15px]"
           name=""
           id=""
-          rows="8"
-          value={selectedWord || "No word selected"}
-          readOnly
-        ></textarea>
+          rows="6"
+          placeholder="Select or type a word..."
+          value={selectedWord}
+          onChange={(e) => {
+            const newWord = e.target.value;
+            // dispatch(setSelectedWord(newWord));
+            setSelectedWord(newWord);
+
+            if (newWord.trim()) {
+            } else {
+              dispatch(clearTranslation());
+            }
+          }}
+        // readOnly={!is_manual_input_allowed}  // Optional: allow editing only when not auto-selected
+        />
       </div>
 
       {/* Translation */}
       <div className="flex flex-row items-center justify-start mt-1">
         <textarea
-          className="p-4 w-full rounded-lg border border-gray-200 outline-none bg-gray-50 text-[16px]"
+          className="p-4 w-full rounded-lg border border-gray-200 outline-none bg-gray-50 text-[15px]"
           name=""
           id=""
-          rows="8"
+          rows="6"
           placeholder="Translation will appear here..."
           // value={translate_result.translation || "Translating..."}
           value={

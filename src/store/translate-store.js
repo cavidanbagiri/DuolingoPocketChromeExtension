@@ -10,11 +10,13 @@ const initialState = {
 
     supported_languages: [],
 
-    translate_message: '',
     translate_pending: false,
     is_translate_error: false,
     translate_success: false,
-    translate_result: {},
+    translate_result: {
+        translation: '',
+        detected_lang: '',
+    },
 
 }
 
@@ -22,9 +24,6 @@ export const translateSlice = createSlice({
     name: 'translate',
     initialState,
     reducers: {
-        setTranslateMessage: (state, action) => {
-            state.translate_message = action.payload;
-        },
         setTranslatePending: (state, action) => {
             state.translate_pending = action.payload;
         },
@@ -37,6 +36,9 @@ export const translateSlice = createSlice({
         setIsTranslateSuccessFalse: (state) => {
             state.translate_success = false;
         },
+        clearTranslation: (state) => {
+            state.translate_result.translation = '';
+        },
     },
     extraReducers: (builder) => {
 
@@ -44,11 +46,10 @@ export const translateSlice = createSlice({
         builder.addCase(TranslateService.translate.pending, (state, action) => {
             state.translate_pending = true;
         })
+
         builder.addCase(TranslateService.translate.fulfilled, (state, action) => {
-            console.log('fulfilled is work')
             state.translate_success = true;
             state.translate_pending = false;
-            state.translate_message = action.payload;
             state.translate_result = action.payload.payload;
             YANDEX_LANGUAGES.forEach((lang) => {
                 if (lang.code === state.translate_result.detected_lang) {
@@ -59,13 +60,10 @@ export const translateSlice = createSlice({
         builder.addCase(TranslateService.translate.rejected, (state, action) => {
             state.translate_pending = false;
             state.is_translate_error = true;
-            state.translate_message = action.payload?.payload?.detail;
         });
 
         // languageService getLanguages
         builder.addCase(TranslateService.getLanguages.fulfilled, (state, action) => {
-            // console.log('getLanguages is work')
-            // console.log('getLanguages is work', action.payload.payload)
             state.supported_languages = action.payload.payload;
             console.log(state.supported_languages);
         });
@@ -73,6 +71,6 @@ export const translateSlice = createSlice({
     },
 });
 
-export const { setTranslateMessage, setTranslatePending, setIsTranslateErrorTrue, setIsTranslateErrorFalse, setIsTranslateSuccessFalse } = translateSlice.actions;
+export const { setTranslatePending, setIsTranslateErrorTrue, setIsTranslateErrorFalse, setIsTranslateSuccessFalse, clearTranslation } = translateSlice.actions;
 
 export default translateSlice.reducer;
