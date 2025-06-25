@@ -37,12 +37,12 @@ function MessageBox(props) {
                 {
                     props.color === 'bg-green-500'
                         ?
-                        <div className={` bg-green-500 rounded-lg flex items-center mr-20 text-lg  py-4 px-10 text-white shadow-xl`}>
-                            <IoMdCheckmarkCircleOutline className={'text-3xl mr-3 text-green-700 '} /> {props.message}
+                        <div className={` bg-green-500 rounded-lg flex items-center mr-20 text-sm  py-2 px-4 text-white shadow-xl`}>
+                            <IoMdCheckmarkCircleOutline className={'text-xl mr-3 text-green-700 '} /> {props.message}
                         </div>
                         :
-                        <div className={` bg-red-500 rounded-lg flex mr-20 text-lg py-4 px-10 text-white shadow-xl`}>
-                            <AiOutlineExclamationCircle className={'text-3xl mr-3 text-red-700'} /> {props.message}
+                        <div className={` bg-red-500 rounded-lg flex mr-20 text-sm py-2 px-4 text-white shadow-xl`}>
+                            <AiOutlineExclamationCircle className={'text-xl mr-3 text-red-700'} /> {props.message}
                         </div>
                 }
             </motion.div>

@@ -12,6 +12,7 @@ const initialState = {
         email: 'unknown',
         username: '',
     },
+    authChecked: false, // ← NEW!
     login_message: '',
     login_pending: false,
     is_auth: false,
@@ -90,22 +91,21 @@ export const authSlice = createSlice({
         // Userservice refresh
         builder.addCase(AuthService.refresh.fulfilled, (state, action) => {
             state.is_auth = true;
+            state.authChecked = true;
             state.user = action.payload;
             localStorage.setItem('token', action.payload.payload.access_token);
             localStorage.setItem('sub', action.payload.payload.user.sub);
             localStorage.setItem('username', action.payload.payload.user.username);
         });
         builder.addCase(AuthService.refresh.rejected, (state, action) => {
-            console.log('refresh second', action.payload);
-            // state.login_pending = false;
-            // state.is_auth = false;
-            // state.is_login_error = true;
-            // state.login_message = action?.payload?.payload?.detail;
+            state.is_auth = false;
+            state.authChecked = true;
         });
 
 
         // Userservice logout
         builder.addCase(AuthService.userLogout.fulfilled, (state, action) => {
+            
             state.is_auth = false;
             state.user = null;
             localStorage.clear();

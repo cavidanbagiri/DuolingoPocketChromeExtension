@@ -1,6 +1,8 @@
-1 - Check Refresh token, each time you refresh the token, it will be invalid - Stopped
+
+1 - Need to add copy and how many characters selected length and ability to translate - Working
+    1.1 - Also need to check for premium users. Till 10.000 characters
+    
 
 
 2 - Need to create nin this form:
-    2.1 - If user not logged in, save the last target language int local storage
-    2.2 - if user logged in, the last target language should be saved in user table
+    2.1 - if user logged in, the last target language should be saved in user table

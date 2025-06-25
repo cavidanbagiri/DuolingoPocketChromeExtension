@@ -13,10 +13,15 @@ function App() {
     const dispatch = useDispatch();
 
     const is_auth = useSelector((state) => state.authSlice.is_auth);
+    const authChecked = useSelector((state) => state.authSlice.authChecked);
+
+    const [limit, setLimit] = useState(100);
+
+    const [show_auth, setShowAuth] = useState(false);
 
     const [word, setWord] = useState("");
 
-    const [show_auth, setShowAuth] = useState(false);
+    const [finalWord, setFinalWord] = useState("");
 
     useEffect(() => {
         console.log("Popup loaded");
@@ -47,9 +52,11 @@ function App() {
     }, []);
 
     useEffect(() => {
-        // Get supported languages
-        dispatch(TranslateService.getLanguages());
-    },[]),
+        if (!authChecked) return;
+
+        // Now it's safe to set word
+        setFinalWord(word);
+    }, [authChecked, word]);
 
 
     useEffect(() => {
@@ -58,14 +65,35 @@ function App() {
         }
     }, [is_auth]);
 
+    useEffect(() => {
+        // Get supported languages
+        dispatch(TranslateService.getLanguages());
+    }, []);
+
+    useEffect(() => {
+        if (!authChecked) return;
+        setLimit(is_auth ? 1000 : 100);
+    }, [authChecked, is_auth]);
 
     return (
+       
+
         <div className='flex flex-col items-center p-2 w-[30rem] '>
             {
                 show_auth && !is_auth ?
                     <Auth show_auth={show_auth} setShowAuth={setShowAuth} />
                     :
-                    <Translate show_auth={show_auth} setShowAuth={setShowAuth} selectedWord={word} setSelectedWord={setWord} />
+                    authChecked ?
+                        <Translate
+                            authChecked={authChecked}
+                            setShowAuth={setShowAuth}
+                            selectedWord={finalWord}
+                            setSelectedWord={setFinalWord}
+                            limit={limit}
+                            setLimit={setLimit}
+                        />
+                        :
+                        <div><span>Loading...</span></div>
             }
         </div>
     )
