@@ -23,47 +23,74 @@ function App() {
 
     const [finalWord, setFinalWord] = useState("");
 
-    useEffect(() => { // This is new version
-        console.log("Popup loaded");
 
-        // Try connecting to background script
-        const port = chrome.runtime.connect();
-        if (!port) {
-            console.warn("⚠️ No background connection available");
-            return;
-        }
 
-        // Request current word from background
-        port.postMessage({ type: "REQUEST_WORD" });
+    useEffect(() => {
+        console.log("Popup initialized");
 
-        port.onMessage.addListener((response) => {
-            if (response.type === "CURRENT_WORD") {
-                setWord(response.payload);
+        // Request initial word
+        chrome.runtime.sendMessage(
+            { type: "REQUEST_WORD" },
+            (response) => {
+                if (response?.type === "CURRENT_WORD") {
+                    setWord(response.payload);
+                }
             }
-        });
+        );
 
-        // Optional: Handle disconnect
-        return () => {
-            port.disconnect();
-        };
-    }, []);
-
-    useEffect(() => { // This is new version
-        const messageListener = (message) => {
+        // Listen for new selections
+        const listener = (message) => {
             if (message.type === "WORD_SELECTED") {
-                console.log("💬 New word from page:", message.payload);
                 setWord(message.payload);
             }
         };
 
-        // Add listener for messages
-        chrome.runtime.onMessage.addListener(messageListener);
-
-        // Cleanup listener on unmount
-        return () => {
-            chrome.runtime.onMessage.removeListener(messageListener);
-        };
+        chrome.runtime.onMessage.addListener(listener);
+        return () => chrome.runtime.onMessage.removeListener(listener);
     }, []);
+
+
+    // useEffect(() => { // This is new version
+    //     console.log("Popup loaded");
+
+    //     // Try connecting to background script
+    //     const port = chrome.runtime.connect();
+    //     if (!port) {
+    //         console.warn("⚠️ No background connection available");
+    //         return;
+    //     }
+
+    //     // Request current word from background
+    //     port.postMessage({ type: "REQUEST_WORD" });
+
+    //     port.onMessage.addListener((response) => {
+    //         if (response.type === "CURRENT_WORD") {
+    //             setWord(response.payload);
+    //         }
+    //     });
+
+    //     // Optional: Handle disconnect
+    //     return () => {
+    //         port.disconnect();
+    //     };
+    // }, []);
+
+    // useEffect(() => { // This is new version
+    //     const messageListener = (message) => {
+    //         if (message.type === "WORD_SELECTED") {
+    //             console.log("💬 New word from page:", message.payload);
+    //             setWord(message.payload);
+    //         }
+    //     };
+
+    //     // Add listener for messages
+    //     chrome.runtime.onMessage.addListener(messageListener);
+
+    //     // Cleanup listener on unmount
+    //     return () => {
+    //         chrome.runtime.onMessage.removeListener(messageListener);
+    //     };
+    // }, []);
 
 
 
