@@ -255,7 +255,7 @@ function Translate({ authChecked, selectedWord = "", setShowAuth, setSelectedWor
               />
 
               {show_to_tooltip && (
-                <span className="absolute -top-8 left-6 whitespace-nowrap bg-slate-800 text-white text-xs px-2 py-1 rounded-md">
+                <span className="absolute top-0 left-6 whitespace-nowrap bg-slate-800 text-white text-xs px-2 py-1 rounded-md"> 
                   Copy to clipboard
                 </span>
               )}
