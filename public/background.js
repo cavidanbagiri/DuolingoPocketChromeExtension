@@ -20,6 +20,22 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         });
         return true;
     }
+
+    // This added new .......................
+    if (message.type === "OPEN_POPUP") {
+        console.log("🧩 Opening popup window...");
+
+        chrome.windows.create({
+            url: chrome.runtime.getURL("popup.html"),
+            type: "popup",
+            width: 320,
+            height: 420
+        });
+
+        sendResponse({ status: "popup_opened" });
+        return true;
+    }
+    // This added new .......................
     
     sendResponse({ status: "ignored" });
 });

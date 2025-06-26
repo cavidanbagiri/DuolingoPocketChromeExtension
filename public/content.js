@@ -6,7 +6,7 @@ const createFloatingIcon = () => {
         <img src="${chrome.runtime.getURL('icons/logo-32.png')}" 
              style="width:24px;height:24px;cursor:pointer;">
     `;
-    
+
     Object.assign(icon.style, {
         position: 'fixed',
         zIndex: '999999',
@@ -26,6 +26,21 @@ const createFloatingIcon = () => {
     icon.addEventListener('touchstart', (e) => {
         e.stopPropagation();
     });
+
+
+    // This added new .......................
+    icon.addEventListener('click', () => {
+        console.log("🦜 Dolphin icon clicked!");
+        
+        if (!chrome?.runtime?.connect) {
+            console.warn("⚠️ Chrome runtime not available");
+            return;
+        }
+        
+        // Send message to background script to open popup
+        chrome.runtime.sendMessage({ type: "OPEN_POPUP" });
+    });
+    // This added new .......................
 
     return icon;
 };
@@ -176,5 +191,4 @@ setInterval(() => {
         }
     );
 }, 5000);
-
 
