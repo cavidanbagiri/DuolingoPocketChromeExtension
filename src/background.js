@@ -1,18 +1,15 @@
-chrome.runtime.onInstalled.addListener(() => {
-  console.log("✅ LinguaPocket extension installed!");
-});
-
 
 
 
 let lastSelectedWord = "";
 
+// Message handler (keep your existing one)
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.type === "WORD_SELECTED") {
         console.log("🦜 Word received:", message.payload);
         lastSelectedWord = message.payload;
         sendResponse({ status: "received" });
-        return true; // Keep channel open for async
+        return true;
     }
     
     if (message.type === "REQUEST_WORD") {
@@ -27,35 +24,42 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     sendResponse({ status: "ignored" });
 });
 
+// NEW: Track active tab and ensure content script is injected
+let activeTabId = null;
 
-// let lastSelectedWord = "";
+chrome.tabs.onActivated.addListener((activeInfo) => {
+    activeTabId = activeInfo.tabId;
+    ensureContentScriptInjected(activeTabId);
+});
 
-// // Listen for selected word from content script
-// chrome.runtime.onMessage.addListener((message, sender, sendResponse) => { // This is new version
-//     if (message.type === "WORD_SELECTED") {
-//         console.log("🦜 Word received in background:", message.payload);
-//         lastSelectedWord = message.payload;
+chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
+    if (tabId === activeTabId && changeInfo.status === 'complete') {
+        ensureContentScriptInjected(tabId);
+    }
+});
 
-//         // Confirm receipt
-//         sendResponse({ status: "received", payload: lastSelectedWord });
-//         return true; // Keep port open for async response
-//     }
+async function ensureContentScriptInjected(tabId) {
+    try {
+        await chrome.scripting.executeScript({
+            target: {tabId},
+            files: ['content.js']
+        });
+        console.log(`Content script injected into tab ${tabId}`);
+    } catch (error) {
+        console.log(`Injection failed for tab ${tabId}:`, error);
+    }
+}
 
-//     // Optional: handle other message types
-//     sendResponse({ status: "ignored", message: "Unknown message type" });
-// });
-
-// // For popup to request latest word
-// chrome.runtime.onConnect.addListener((port) => {
-//     port.onMessage.addListener((msg) => {
-//         if (msg.type === "REQUEST_WORD") {
-//             console.log("🔌 Popup requested current word:", lastSelectedWord);
-//             port.postMessage({
-//                 type: "CURRENT_WORD",
-//                 payload: lastSelectedWord
-//             });
-//         }
-//     });
-// });
-
+// Handle extension install/update
+chrome.runtime.onInstalled.addListener(({reason}) => {
+    if (reason === chrome.runtime.OnInstalledReason.UPDATE) {
+        chrome.tabs.query({}, tabs => {
+            tabs.forEach(tab => {
+                if (tab.url?.startsWith('http')) {
+                    ensureContentScriptInjected(tab.id);
+                }
+            });
+        });
+    }
+});
 

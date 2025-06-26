@@ -1,128 +1,62 @@
 
 
-// content.js (corrected version) new deepseek code
-document.addEventListener("mouseup", () => {
+// Connection state tracking
+let extensionContextValid = true;
+
+function handleSelection() {
+    if (!extensionContextValid) {
+        console.log("Extension context invalid - attempting recovery");
+        window.location.reload();
+        return;
+    }
+
     const selection = window.getSelection().toString().trim();
-    
-    if (selection && selection.length > 0) {
-        console.log("✅ Selected text:", selection);
-        
-        // Send directly without checking connection first
+    if (!selection) return;
+
+    try {
         chrome.runtime.sendMessage(
             { type: "WORD_SELECTED", payload: selection },
             (response) => {
                 if (chrome.runtime.lastError) {
-                    console.warn("⚠️ Background not available:", chrome.runtime.lastError);
-                } else {
-                    console.log("📬 Response from background:", response);
+                    console.log("Message failed:", chrome.runtime.lastError);
+                    handleContextInvalidation();
                 }
             }
         );
+    } catch (e) {
+        console.log("Send message error:", e);
+        handleContextInvalidation();
+    }
+}
+
+function handleContextInvalidation() {
+    extensionContextValid = false;
+    console.log("Extension context invalidated - reloading page");
+    window.location.reload();
+}
+
+// Listen for context invalidation
+chrome.runtime.onMessage.addListener((message) => {
+    if (message.type === 'CONTEXT_CHECK') {
+        return Promise.resolve({status: 'alive'});
     }
 });
 
+// Initial setup
+document.addEventListener('mouseup', handleSelection);
 
-// document.addEventListener("mouseup", () => { -> Last woorked qwen code
-//   const selection = window.getSelection().toString().trim();
-
-//   if (selection && selection.length > 0) {
-//     console.log("✅ Selected text:", selection);
-
-//     // Try connecting to see if popup is active
-//     const port = chrome.runtime.connect();
-
-//     if (!port || chrome.runtime.lastError) {
-//       console.warn("⚠️ LinguaPocket popup not open or loading...");
-//       port.disconnect(); // Avoid memory leak
-//       return;
-//     }
-
-//     // Send selected word to background script
-//     chrome.runtime.sendMessage(
-//       { type: "WORD_SELECTED", payload: selection },
-//       (response) => {
-//         if (chrome.runtime.lastError) {
-//           console.warn("⚠️ No listener found in popup");
-//         } else {
-//           console.log("📬 Response from popup:", response);
-//         }
-//       }
-//     );
-
-//     port.disconnect(); // Clean up port
-//   }
-// });
-
-
-
-
-// document.addEventListener("mouseup", () => {
-//   const selection = window.getSelection().toString().trim();
-
-//   if (selection && selection.length > 0) {
-//     console.log("✅ Selected text:", selection);
-
-//     // Optional: Check if popup is open before sending message
-//     chrome.runtime.connect(); // Just connect, we only need to know if popup is listening
-
-//     // Send word to background
-//     chrome.runtime.sendMessage(
-//       { type: "WORD_SELECTED", payload: selection },
-//       (response) => {
-//         if (chrome.runtime.lastError) {
-//           console.warn("⚠️ Popup not running or no listener found");
-//         } else {
-//           console.log("📬 Response from popup:", response);
-//         }
-//       }
-//     );
-//   }
-// });
-
-
-// document.addEventListener("mouseup", () => { // This is for testing, new version will be in content.js
-//     const selection = window.getSelection().toString().trim();
-
-//     if (selection && selection.length > 0) {
-//         console.log("✅ Selected text:", selection);
-
-//         // Optional: Check if any popup is listening before sending
-//         chrome.runtime.connect({}, () => {
-//             if (chrome.runtime.lastError) {
-//                 console.warn("⚠️ LinguaPocket popup is not open");
-//                 return;
-//             }
-
-//             chrome.runtime.sendMessage(
-//                 { type: "WORD_SELECTED", payload: selection },
-//                 (response) => {
-//                     if (chrome.runtime.lastError) {
-//                         console.warn("⚠️ Popup is not active or closed");
-//                     } else {
-//                         console.log("📬 Response from popup:", response);
-//                     }
-//                 }
-//             );
-//         });
-//     }
-// });
-
-
-// document.addEventListener("mouseup", () => {
-//     const selection = window.getSelection().toString().trim();
+// Periodically check connection
+setInterval(() => {
+    if (!extensionContextValid) return;
     
-//     if (selection && selection.length > 0) {
-//         console.log("✅ Selected text:", selection);
+    chrome.runtime.sendMessage(
+        {type: 'PING'},
+        (response) => {
+            if (chrome.runtime.lastError) {
+                handleContextInvalidation();
+            }
+        }
+    );
+}, 5000); // Check every 5 seconds
 
-//         chrome.runtime.sendMessage(
-//             { type: "WORD_SELECTED", payload: selection },
-//             (response) => {
-//                 if (chrome.runtime.lastError) {
-//                     console.warn("⚠️ Popup not running or no listener found");
-//                 } else {
-//                     console.log("📬 Response from popup:", response);
-//                 }
-//             }
-//         );
-//     }
-// });
+
