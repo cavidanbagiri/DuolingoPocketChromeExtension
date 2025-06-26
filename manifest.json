@@ -5,11 +5,22 @@
   "description": "Save translated words directly from Google Translate or Yandex",
   "icons": {
     "16": "icons/logo-16.png",
-    "32": "icons/logo-32.png"
+    "32": "icons/logo-32.png",
+    "64": "icons/logo-64.png",
+    "128": "icons/logo-128.png"
+  },
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+L",
+        "mac": "Command+Shift+L"
+      },
+      "description": "Open LinguaPocket"
+    }
   },
   "action": {
     "default_popup": "index.html",
-    "default_icon": "icons/logo.svg"
+    "default_icon": "icons/logo-128.png"
   },
   "permissions": ["activeTab", "scripting", "contextMenus", "tabs"],
   "host_permissions": ["<all_urls>"],
@@ -26,5 +37,11 @@
   ],
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'"
-  }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["icons/*.png"],
+      "matches": ["<all_urls>"]
+    }
+  ]
 }
