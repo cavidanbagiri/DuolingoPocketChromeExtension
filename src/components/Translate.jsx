@@ -1,7 +1,10 @@
 
 import { useSelector, useDispatch } from "react-redux";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
+
+import CircularProgress from '@mui/material/CircularProgress';
+import Box from '@mui/material/Box';
 
 import { FaArrowRight } from "react-icons/fa";
 import { FaRegCopy } from "react-icons/fa";
@@ -9,7 +12,7 @@ import { FaRegKeyboard } from "react-icons/fa";
 import { MdOutlineClear } from "react-icons/md";
 
 
-import { clearTranslation } from "../store/translate-store";
+import { clearTranslation, setIsSaveWordErrorTrue, setIsSaveWordErrorFalse, setIsSaveWordSuccessFalse } from "../store/translate-store";
 
 import AuthService from "../service/auth-service";
 import TranslateService from "../service/translate-service";
@@ -29,6 +32,12 @@ function Translate({ authChecked, selectedWord = "", setShowAuth, setSelectedWor
   const translate_pending = useSelector((state) => state.translateSlice.translate_pending);
   const translate_result = useSelector((state) => state.translateSlice.translate_result);
   const supported_languages = useSelector((state) => state.translateSlice.supported_languages);
+
+
+  const save_word_pending = useSelector((state) => state.translateSlice.save_word_pending);
+  const is_save_word_error = useSelector((state) => state.translateSlice.is_save_word_error);
+  const save_word_success = useSelector((state) => state.translateSlice.save_word_success);
+
 
   const [fromLang, setFromLang] = useState("auto");
   const [toLang, setToLang] = useState(() => {
@@ -68,6 +77,25 @@ function Translate({ authChecked, selectedWord = "", setShowAuth, setSelectedWor
     }
   });
 
+  useEffect(()=>{
+    if (is_save_word_error) {
+      setShowMessageBox(true);
+      setShowMessage("Error saving word");
+      setShowMessageColor('bg-red-500');
+      dispatch(setIsSaveWordErrorFalse());
+    }
+  },[is_save_word_error])
+  
+  useEffect(()=>{
+    if (save_word_success) {
+      setShowMessageBox(true);
+      setShowMessage("Word saved");
+      setShowMessageColor('bg-green-500');
+      dispatch(setIsSaveWordSuccessFalse());
+    }
+  },[save_word_success])
+  
+
   useEffect(() => {
 
     if (!authChecked) return;
@@ -98,6 +126,18 @@ function Translate({ authChecked, selectedWord = "", setShowAuth, setSelectedWor
         show_message_box &&
         <MessageBox message={show_message} color={show_message_color} />
       }
+
+
+      {/* {
+        is_save_word_error &&
+        <MessageBox message="Error saving word" color="bg-red-500" />
+      }
+
+      {
+        save_word_success &&
+        <MessageBox message="Word saved" color="bg-green-500" />
+      } */}
+
 
       {/* Header */}
       <div className="flex flex-row items-center justify-between px-2 rounded-t-lg bg-gray-200">
@@ -266,14 +306,42 @@ function Translate({ authChecked, selectedWord = "", setShowAuth, setSelectedWor
         </div>
       </div>
 
-      {/* {
+      {
         is_auth &&
         <div className="flex flex-row w-full mt-2 items-center justify-center">
-          <button className="py-2 text-sm w-full text-white bg-blue-800 rounded-sm cursor-pointer hover:bg-blue-500 duration-150">
-            Save Duo
-          </button>
+          
+          {
+            save_word_pending ?
+            <Box sx={{ display: 'flex' }}>
+              <CircularProgress />
+            </Box>
+            :
+            <button 
+            onClick={() => {
+
+              if (!selectedWord.trim()) {
+                setShowMessageBox(true);
+                setShowMessage("Empty word cannot be saved. Please translate a word.");
+                setShowMessageColor('bg-red-500');
+                return;
+              }
+
+              const payload = {
+                word: selectedWord,
+                translation: translate_result.translation,
+                from_lang: translate_result.detected_lang,
+                to_lang: toLang
+              }
+              console.log('sending payload is ', payload);
+              dispatch(TranslateService.saveWord(payload));
+            }}
+            className="py-2 text-sm w-full text-white bg-blue-800 rounded-sm cursor-pointer hover:bg-blue-500 duration-150">
+              Save Duo
+            </button>
+          }
+          
         </div>
-      } */}
+      }
 
     </div>
   );

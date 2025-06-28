@@ -52,6 +52,29 @@ class TranslateService {
             }
         });
 
+
+    static saveWord = createAsyncThunk(
+        '/save',
+        async (payload) => {
+            try {
+                const response = await $api.post('/translate/save', payload);
+                return {
+                    payload: response.data,
+                    status: response.status,
+                };
+            } catch (error) {
+                // Extract error details
+                const errorData = error.response?.data || { message: error.message };
+                const statusCode = error.response?.status || 500;
+                // Pass custom error payload
+                return thunkAPI.rejectWithValue({
+                    payload: errorData,
+                    status: statusCode,
+                });
+
+            }
+        });
+
 }
 
 export default TranslateService;

@@ -18,6 +18,12 @@ const initialState = {
         detected_lang: '',
     },
 
+
+    save_word_pending: false,
+    is_save_word_error: false,
+    save_word_success: false,
+
+
 }
 
 export const translateSlice = createSlice({
@@ -39,6 +45,17 @@ export const translateSlice = createSlice({
         clearTranslation: (state) => {
             state.translate_result.translation = '';
         },
+
+        setIsSaveWordErrorTrue: (state) => {
+            state.is_save_word_error = true;
+        },
+        setIsSaveWordErrorFalse: (state) => {
+            state.is_save_word_error = false;
+        },
+        setIsSaveWordSuccessFalse: (state) => {
+            state.save_word_success = false;
+        },
+        
     },
     extraReducers: (builder) => {
 
@@ -51,6 +68,7 @@ export const translateSlice = createSlice({
             state.translate_success = true;
             state.translate_pending = false;
             state.translate_result = action.payload.payload;
+            console.log(state.translate_result);
             YANDEX_LANGUAGES.forEach((lang) => {
                 if (lang.code === state.translate_result.detected_lang) {
                     state.translate_result.detected_lang_name = lang.name;
@@ -68,9 +86,24 @@ export const translateSlice = createSlice({
             console.log(state.supported_languages);
         });
 
+        // saveWordService saveWord
+        builder.addCase(TranslateService.saveWord.pending, (state, action) => {
+            state.save_word_pending = true;
+        })
+        builder.addCase(TranslateService.saveWord.fulfilled, (state, action) => {
+            state.save_word_success = true;
+            state.save_word_pending = false;
+        });
+        builder.addCase(TranslateService.saveWord.rejected, (state, action) => {
+            state.save_word_pending = false;
+            state.is_save_word_error = true;
+        });
+
     },
 });
 
-export const { setTranslatePending, setIsTranslateErrorTrue, setIsTranslateErrorFalse, setIsTranslateSuccessFalse, clearTranslation } = translateSlice.actions;
+export const { setTranslatePending, setIsTranslateErrorTrue, setIsTranslateErrorFalse, setIsTranslateSuccessFalse, clearTranslation,
+    setIsSaveWordErrorTrue, setIsSaveWordErrorFalse, setIsSaveWordSuccessFalse
+ } = translateSlice.actions;
 
 export default translateSlice.reducer;
