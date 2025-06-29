@@ -57,7 +57,7 @@ class TranslateService {
         '/save',
         async (payload) => {
             try {
-                const response = await $api.post('/translate/save', payload);
+                const response = await $api.post('/words/save', payload);
                 return {
                     payload: response.data,
                     status: response.status,
