@@ -44,7 +44,7 @@ function Translate({ authChecked, selectedWord = "", setShowAuth, setSelectedWor
     return localStorage.getItem("toLang") || "en";
   });
 
-  
+
 
   const [show_message_box, setShowMessageBox] = useState(false);
   const [show_message_color, setShowMessageColor] = useState('bg-green-500');
@@ -77,24 +77,24 @@ function Translate({ authChecked, selectedWord = "", setShowAuth, setSelectedWor
     }
   });
 
-  useEffect(()=>{
+  useEffect(() => {
     if (is_save_word_error) {
       setShowMessageBox(true);
       setShowMessage("Error saving word");
       setShowMessageColor('bg-red-500');
       dispatch(setIsSaveWordErrorFalse());
     }
-  },[is_save_word_error])
-  
-  useEffect(()=>{
+  }, [is_save_word_error])
+
+  useEffect(() => {
     if (save_word_success) {
       setShowMessageBox(true);
       setShowMessage("Word saved");
       setShowMessageColor('bg-green-500');
       dispatch(setIsSaveWordSuccessFalse());
     }
-  },[save_word_success])
-  
+  }, [save_word_success])
+
 
   useEffect(() => {
 
@@ -217,7 +217,7 @@ function Translate({ authChecked, selectedWord = "", setShowAuth, setSelectedWor
           <MdOutlineClear className="absolute top-3 right-3 text-xl cursor-pointer text-gray-500" onClick={() => {
             setSelectedWord('');
             dispatch(clearTranslation());
-          }} /> 
+          }} />
         }
         <div className="flex flex-col items-center justify-center w-full p-2 rounded-lg border border-gray-200">
           <textarea
@@ -295,7 +295,7 @@ function Translate({ authChecked, selectedWord = "", setShowAuth, setSelectedWor
               />
 
               {show_to_tooltip && (
-                <span className="absolute top-0 left-6 whitespace-nowrap bg-slate-800 text-white text-xs px-2 py-1 rounded-md"> 
+                <span className="absolute top-0 left-6 whitespace-nowrap bg-slate-800 text-white text-xs px-2 py-1 rounded-md">
                   Copy to clipboard
                 </span>
               )}
@@ -309,37 +309,54 @@ function Translate({ authChecked, selectedWord = "", setShowAuth, setSelectedWor
       {
         is_auth &&
         <div className="flex flex-row w-full mt-2 items-center justify-center">
-          
+
           {
             save_word_pending ?
-            <Box sx={{ display: 'flex' }}>
-              <CircularProgress />
-            </Box>
-            :
-            <button 
-            onClick={() => {
+              <Box sx={{ display: 'flex' }}>
+                <CircularProgress />
+              </Box>
+              :
+              <button
+                onClick={() => {
 
-              if (!selectedWord.trim()) {
-                setShowMessageBox(true);
-                setShowMessage("Empty word cannot be saved. Please translate a word.");
-                setShowMessageColor('bg-red-500');
-                return;
-              }
+                  if (!selectedWord.trim()) {
+                    setShowMessageBox(true);
+                    setShowMessage("Empty word cannot be saved. Please translate a word.");
+                    setShowMessageColor('bg-red-500');
+                    return;
+                  }
+                  if (selectedWord.length > limit) {
+                    setShowMessageBox(true);
+                    setShowMessage("Word must be less than " + limit + " characters");
+                    setShowMessageColor('bg-red-500');
+                    return;
+                  }
+                  if (translate_result.detected_lang === 'auto') {
+                    setShowMessageBox(true);
+                    setShowMessage("Auto-Detection failed. Please select a language.");
+                    setShowMessageColor('bg-red-500');
+                    return;
+                  }
+                  if (translate_result.detected_lang === toLang) {
+                    setShowMessageBox(true);
+                    setShowMessage("Word already translated to " + toLang);
+                    setShowMessageColor('bg-red-500');
+                    return;
+                  }
 
-              const payload = {
-                word: selectedWord,
-                translation: translate_result.translation,
-                from_lang: translate_result.detected_lang,
-                to_lang: toLang
-              }
-              console.log('sending payload is ', payload);
-              dispatch(TranslateService.saveWord(payload));
-            }}
-            className="py-2 text-sm w-full text-white bg-blue-800 rounded-sm cursor-pointer hover:bg-blue-500 duration-150">
-              Save Duo
-            </button>
+                  const payload = {
+                    word: selectedWord,
+                    translation: translate_result.translation,
+                    from_lang: translate_result.detected_lang,
+                    to_lang: toLang
+                  }
+                  dispatch(TranslateService.saveWord(payload));
+                }}
+                className="py-2 text-sm w-full text-white bg-blue-800 rounded-sm cursor-pointer hover:bg-blue-500 duration-150">
+                Save Duo
+              </button>
           }
-          
+
         </div>
       }
 
